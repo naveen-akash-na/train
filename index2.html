@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Train Timing Search</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f6f8;
+      color: #333;
+    }
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #0d47a1;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: #fefefe;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #e3f2fd;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .route-header {
+      margin-top: 40px;
+      color: #0d47a1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Train Information</h2>
+    <div id="dat_container"></div>
+  </div>
+
+  <script>
+    async function fetchTrainData(trainNumber) {
+      const container = document.getElementById('dat_container');
+      container.innerHTML = 'Loading...';
+
+      const url = `https://indian-railway-irctc.p.rapidapi.com/api/trains-search/v1/train/${trainNumber}?isH5=true&client=web`;
+      const options = {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-key': 'daa17d58ccmshd9376db8e118fd6p18878bjsn88cdd4f4cd7a', // Replace with your actual key
+          'x-rapidapi-host': 'indian-railway-irctc.p.rapidapi.com',
+          'x-rapid-api': 'rapid-api-database'
+        }
+      };
+
+      try {
+        const res = await fetch(url, options);
+        const data = await res.json();
+
+        if (!data.body || data.body.length === 0 || !data.body[0].trains || data.body[0].trains.length === 0) {
+          container.innerHTML = '<p>No trains found.</p>';
+          return;
+        }
+
+        const train = data.body[0].trains[0];
+        let html = `
+          <h3 style="color:#0d47a1;">${train.trainName} (${train.trainNumber})</h3>
+          <p><strong>Origin:</strong> ${train.origin || '-'} | <strong>Destination:</strong> ${train.destination || '-'}</p>
+          <p><strong>From:</strong> ${train.stationFrom || '-'} | <strong>To:</strong> ${train.stationTo || '-'}</p>
+        `;
+
+        if (train.schedule && train.schedule.length > 0) {
+          html += `
+            <h4 class="route-header">Route Schedule:</h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Station Code</th>
+                  <th>Station Name</th>
+                  <th>Arrival Time</th>
+                  <th>Departure Time</th>
+                  <th>Day</th>
+                  <th>Distance (km)</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+          train.schedule.forEach((station, index) => {
+            html += `
+              <tr>
+                <td>${index + 1}</td>
+                <td>${station.stationCode}</td>
+                <td>${station.stationName}</td>
+                <td>${station.arrivalTime}</td>
+                <td>${station.departureTime}</td>
+                <td>${station.dayCount}</td>
+                <td>${station.distance}</td>
+              </tr>
+            `;
+          });
+          html += '</tbody></table>';
+        }
+
+        container.innerHTML = html;
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = '<p style="color: red;">Failed to fetch data. Please check the train number or try again later.</p>';
+      }
+    }
+
+    // On page load, fetch data from URL if trainNumber is present
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const trainNumber = urlParams.get('trainNumber');
+      const container = document.getElementById('dat_container');
+
+      if (trainNumber) {
+        fetchTrainData(trainNumber);
+      } else {
+        container.innerHTML = '<p style="color: grey;">No train number provided in URL.</p>';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Train Search</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f6f8;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #0d47a1;
+      text-align: center;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    label {
+      font-weight: bold;
+    }
+    input[type="text"] {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      padding: 12px;
+      font-size: 16px;
+      background-color: #0d47a1;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background-color: #1565c0;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+      background-color: #fafafa;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #e3f2fd;
+      font-weight: bold;
+      border-bottom: 1px solid #ccc;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #e3f2fd;
+      cursor: pointer;
+    }
+    #dat_container {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Search Train Timing</h2>
+    <form id="trainForm">
+      <label for="trainNumber">Train Number:</label>
+      <input type="text" id="trainNumber" name="trainNumber" placeholder="Enter train number (e.g. 2265)" required />
+      <div style="text-align: center; ">
+        <button type="submit" style="width:120px">Search</button>
+      <a href="pnr.html" style="width:120px;"><button>PNR</button></a>
+      </div>
+    </form>
+    <div id="dat_container"></div>
+  </div>
+
+  <script>
+    document.getElementById('trainForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const trainNumber = document.getElementById('trainNumber').value.trim();
+      if (!trainNumber) return;
+
+      const url = `https://indian-railway-irctc.p.rapidapi.com/api/trains-search/v1/train/${trainNumber}?isH5=true&client=web`;
+
+      const options = {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-key': 'daa17d58ccmshd9376db8e118fd6p18878bjsn88cdd4f4cd7a',
+          'x-rapidapi-host': 'indian-railway-irctc.p.rapidapi.com'
+        }
+      };
+
+      try {
+        const response = await fetch(url, options);
+        if (!response.ok) throw new Error(`Error: ${response.status}`);
+
+        const result = await response.json();
+        const container = document.getElementById("dat_container");
+        container.innerHTML = "";
+        if (result && result.body && result.body.length > 0 && result.body[0].trains.length > 0) {
+          const trains = result.body[0].trains;
+          let html = `<h3 style="margin-bottom: 15px; color:#0d47a1;">Trains matching "${trainNumber}"</h3>`;
+          html += `<table>
+            <thead>
+              <tr>
+                <th>Train Number</th>
+                <th>Train Name</th>
+                <th>Origin</th>
+                <th>Destination</th>
+                <th>Station From</th>
+              </tr>
+            </thead>
+            <tbody>`;
+          trains.forEach(train => {
+            html += `<tr onclick="window.location.href='index2.html?trainNumber=${train.trainNumber}'">
+              <td>${train.trainNumber || '-'}</td>
+              <td>${train.trainName || '-'}</td>
+              <td>${train.origin || '-'}</td>
+              <td>${train.destination || '-'}</td>
+              <td>${train.stationFrom || '-'}</td>
+            </tr>`;
+          });
+          html += '</tbody></table>';
+          container.innerHTML = html;
+        } else {
+          container.innerHTML = '<p style="color: #e53935;">No trains found for this train number.</p>';
+        }
+      } catch (error) {
+        console.error(error);
+        document.getElementById("dat_container").innerHTML = '<p style="color: #e53935;">Failed to fetch train data. Please try again.</p>';
+      }
+    });
+  </script>
+</body>
+</html>
