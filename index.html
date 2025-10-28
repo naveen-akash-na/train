@@ -145,7 +145,7 @@ let error;
       const response = await fetch(url, options);
       if (!response.ok) throw new Error(`Error: ${response.status}`);
       const data = await response.json();
-      error = response.message
+      error = response
 
       const train = data.body[0].trains.find(t => t.trainNumber === trainNum);
 
@@ -192,6 +192,7 @@ let error;
 
 </body>
 </html>
+
 
 
 
