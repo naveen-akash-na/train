@@ -140,11 +140,12 @@
       		'x-rapid-api': 'rapid-api-database'
         }
       };
-
+let error;
     try {
       const response = await fetch(url, options);
       if (!response.ok) throw new Error(`Error: ${response.status}`);
       const data = await response.json();
+      error = response.status
 
       const train = data.body[0].trains.find(t => t.trainNumber === trainNum);
 
@@ -183,7 +184,7 @@
       resultDiv.innerHTML = html;
 
     } catch (e) {
-      resultDiv.innerHTML = `<p class="no-data">❌ ${e.message}</p>`;
+      resultDiv.innerHTML = `<p class="no-data">❌ ${error}</p>`;
       console.error(e);
     }
   }
@@ -191,6 +192,7 @@
 
 </body>
 </html>
+
 
 
 
