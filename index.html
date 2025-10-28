@@ -132,13 +132,14 @@
     }
 
     const url = `https://indian-railway-irctc.p.rapidapi.com/api/trains-search/v1/train/${trainNum}?isH5=true&client=web`;
-    const options = {
-      method: 'GET',
-      headers: {
-        'x-rapidapi-key': 'daa17d58ccmshd9376db8e118fd6p18878bjsn88cdd4f4cd7a',
-        'x-rapidapi-host': 'indian-railway-irctc.p.rapidapi.com'
-      }
-    };
+      const options = {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-key': 'daa17d58ccmshd9376db8e118fd6p18878bjsn88cdd4f4cd7a',
+          'x-rapidapi-host': 'indian-railway-irctc.p.rapidapi.com',
+          'x-rapid-api': 'rapid-api-database'
+        }
+      };
 
     try {
       const response = await fetch(url, options);
@@ -190,5 +191,6 @@
 
 </body>
 </html>
+
 
 
