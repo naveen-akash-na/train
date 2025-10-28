@@ -39,19 +39,20 @@
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 8px;
-      font-size: 16px;
+      font-size: 14px;
+      outline: none;
     }
-    button {
-      padding: 12px;
-      font-size: 16px;
-      background-color: #0d47a1;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s ease;
+    .button {
+    padding: 8px;
+    font-size: 14px;
+    background-color: #0d47a1;
+    color: white;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.3s ease;
     }
-    button:hover {
+    .button:hover {
       background-color: #1565c0;
     }
     table {
@@ -82,17 +83,34 @@
     #dat_container {
       margin-top: 30px;
     }
+    .pnrButton{
+        background-color: red;
+    border-width: 0px;
+    color: white;
+    border-radius: 2px;
+    width: 53px;
+    padding: 9px;
+    font-size: 12px;
+    font-weight: bold;
+    }
+    .pnr-container{
+      display:flex; 
+      flex-direction:row; 
+      justify-content:end;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <div style="pnr-container">
+      <a href="pnr.html" style="width:120px;"><button class='pnrButton'>PNR</button></a>
+    </div>
     <h2>Search Train Timing</h2>
     <form id="trainForm">
       <label for="trainNumber">Train Number:</label>
       <input type="text" id="trainNumber" name="trainNumber" placeholder="Enter train number (e.g. 2265)" required />
       <div style="text-align: center; ">
-        <button type="submit" style="width:120px">Search</button>
-      <a href="pnr.html" style="width:120px;"><button>PNR</button></a>
+        <button type="submit" style="width:120px" class="button">Search</button>
       </div>
     </form>
     <div id="dat_container"></div>
@@ -158,3 +176,4 @@
   </script>
 </body>
 </html>
+
