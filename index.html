@@ -121,62 +121,74 @@
   </div>
 
   <script>
-    async function searchTrain() {
-      const trainNum = document.getElementById("trainNumber").value.trim();
-      const resultDiv = document.getElementById("result");
-      resultDiv.innerHTML = "";
+  async function searchTrain() {
+    const trainNum = document.getElementById('trainNumber').value.trim();
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = "";
 
-      if (!trainNum) {
-        resultDiv.innerHTML = `<p class="no-data">⚠️ Please enter a train number.</p>`;
+    if (!trainNum) {
+      resultDiv.innerHTML = `<p class="no-data">⚠️ Please enter a train number.</p>`;
+      return;
+    }
+
+    const url = `https://indian-railway-irctc.p.rapidapi.com/api/trains-search/v1/train/${trainNum}?isH5=true&client=web`;
+    const options = {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': 'daa17d58ccmshd9376db8e118fd6p18878bjsn88cdd4f4cd7a',
+        'x-rapidapi-host': 'indian-railway-irctc.p.rapidapi.com'
+      }
+    };
+
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+      const data = await response.json();
+
+      const train = data.body[0].trains.find(t => t.trainNumber === trainNum);
+
+      if (!train) {
+        resultDiv.innerHTML = `<p class="no-data">🚫 Train not found.</p>`;
         return;
       }
 
-      // Simulating API call (you can replace with real fetch)
-      try {
-        const response = await fetch("trainData.json"); // or your API endpoint
-        const data = await response.json();
+      let html = `
+        <h3>${train.trainName} (${train.trainNumber})</h3>
+        <p><strong>From:</strong> ${train.origin} (${train.stationFrom})  
+           <strong>To:</strong> ${train.destination} (${train.stationTo})</p>
+        <table>
+          <tr>
+            <th>Station Code</th>
+            <th>Station Name</th>
+            <th>Arrival</th>
+            <th>Departure</th>
+            <th>Distance (km)</th>
+          </tr>
+      `;
 
-        const train = data.body[0].trains.find(t => t.trainNumber === trainNum);
-
-        if (!train) {
-          resultDiv.innerHTML = `<p class="no-data">🚫 Train not found.</p>`;
-          return;
-        }
-
-        let html = `
-          <h3>${train.trainName} (${train.trainNumber})</h3>
-          <p><strong>From:</strong> ${train.origin} (${train.stationFrom})  
-             <strong>To:</strong> ${train.destination} (${train.stationTo})</p>
-          <table>
-            <tr>
-              <th>Station Code</th>
-              <th>Station Name</th>
-              <th>Arrival</th>
-              <th>Departure</th>
-              <th>Distance (km)</th>
-            </tr>
+      train.schedule.forEach(stn => {
+        html += `
+          <tr>
+            <td>${stn.stationCode}</td>
+            <td>${stn.stationName}</td>
+            <td>${stn.arrivalTime}</td>
+            <td>${stn.departureTime}</td>
+            <td>${stn.distance}</td>
+          </tr>
         `;
+      });
 
-        train.schedule.forEach(stn => {
-          html += `
-            <tr>
-              <td>${stn.stationCode}</td>
-              <td>${stn.stationName}</td>
-              <td>${stn.arrivalTime}</td>
-              <td>${stn.departureTime}</td>
-              <td>${stn.distance}</td>
-            </tr>
-          `;
-        });
+      html += "</table>";
+      resultDiv.innerHTML = html;
 
-        html += "</table>";
-        resultDiv.innerHTML = html;
-
-      } catch (err) {
-        resultDiv.innerHTML = `<p class="no-data">❌ Error loading data.</p>`;
-      }
+    } catch (err) {
+      resultDiv.innerHTML = `<p class="no-data">❌ Error loading data.</p>`;
+      console.error(err);
     }
-  </script>
+  }
+</script>
+
 </body>
 </html>
+
 
