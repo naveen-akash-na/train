@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+rr<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -183,7 +183,7 @@
       resultDiv.innerHTML = html;
 
     } catch (err) {
-      resultDiv.innerHTML = `<p class="no-data">❌ Error loading data.</p>`;
+      resultDiv.innerHTML = `<p class="no-data">❌ ${err.message}</p>`;
       console.error(err);
     }
   }
@@ -191,6 +191,7 @@
 
 </body>
 </html>
+
 
 
 
