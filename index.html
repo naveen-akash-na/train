@@ -2,86 +2,87 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Train Search</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
     body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f6fa;
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f4f6f8;
-      color: #333;
+      padding: 0;
     }
-    .container {
-      max-width: 800px;
-      margin: 40px auto;
-      background: #fff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    h2 {
-      margin-bottom: 20px;
-      color: #0d47a1;
+
+    header {
+      background-color: #003366;
+      color: white;
       text-align: center;
+      padding: 15px 0;
+      font-size: 22px;
+      letter-spacing: 1px;
     }
-    form {
+
+    .container {
+      width: 90%;
+      max-width: 900px;
+      margin: 30px auto;
+      background: white;
+      border: 1px solid #d0d7de;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      border-radius: 4px;
+      padding: 20px;
+    }
+
+    .search-section {
       display: flex;
-      flex-direction: column;
-      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
     }
-    label {
-      font-weight: bold;
-    }
-    input[type="text"] {
+
+    input {
+      flex: 1;
       padding: 10px;
       border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 14px;
-      outline: none;
+      border-radius: 4px;
+      font-size: 16px;
     }
-    .button {
-    padding: 8px;
-    font-size: 14px;
-    background-color: #0d47a1;
-    color: white;
-    border: none;
-    border-radius: 2px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    }
-    .button:hover {
-      background-color: #1565c0;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 20px;
-      background-color: #fafafa;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-    th, td {
-      padding: 12px 14px;
-      text-align: left;
-    }
-    th {
-      background-color: #e3f2fd;
-      font-weight: bold;
-      border-bottom: 1px solid #ccc;
-    }
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-    tr:hover {
-      background-color: #e3f2fd;
+
+    button {
+      background-color: #003366;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
       cursor: pointer;
+      font-size: 16px;
     }
-    #dat_container {
-      margin-top: 30px;
+
+    button:hover {
+      background-color: #00224d;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+      font-size: 15px;
+    }
+
+    th {
+      background-color: #e8eef5;
+    }
+
+    .no-data {
+      text-align: center;
+      color: #888;
+      margin-top: 20px;
     }
     .pnrButton{
         background-color: red;
@@ -92,88 +93,88 @@
     padding: 9px;
     font-size: 12px;
     font-weight: bold;
+    margin-top:10px;
     }
     .pnr-container{
       display:flex; 
       flex-direction:row; 
       justify-content:end;
+      
     }
   </style>
 </head>
 <body>
-  <div class="container">
+
+  <header>Train Search Portal</header>
     <div style="pnr-container">
       <a href="pnr.html" style="width:120px;"><button class='pnrButton'>PNR</button></a>
     </div>
-    <h2>Search Train Timing</h2>
-    <form id="trainForm">
-      <label for="trainNumber">Train Number:</label>
-      <input type="text" id="trainNumber" name="trainNumber" placeholder="Enter train number (e.g. 2265)" required />
-      <div style="text-align: center; ">
-        <button type="submit" style="width:120px" class="button">Search</button>
-      </div>
-    </form>
-    <div id="dat_container"></div>
+
+  <div class="container">
+    <div class="search-section">
+      <input type="text" id="trainNumber" placeholder="Enter Train Number (e.g. 12027)" />
+      <button onclick="searchTrain()">Search</button>
+    </div>
+
+    <div id="result"></div>
   </div>
 
   <script>
-    document.getElementById('trainForm').addEventListener('submit', async function(event) {
-      event.preventDefault();
+    async function searchTrain() {
+      const trainNum = document.getElementById("trainNumber").value.trim();
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "";
 
-      const trainNumber = document.getElementById('trainNumber').value.trim();
-      if (!trainNumber) return;
-
-      const url = `https://indian-railway-irctc.p.rapidapi.com/api/trains-search/v1/train/${trainNumber}?isH5=true&client=web`;
-
-      const options = {
-        method: 'GET',
-        headers: {
-          'x-rapidapi-key': 'daa17d58ccmshd9376db8e118fd6p18878bjsn88cdd4f4cd7a',
-          'x-rapidapi-host': 'indian-railway-irctc.p.rapidapi.com'
-        }
-      };
-
-      try {
-        const response = await fetch(url, options);
-        if (!response.ok) throw new Error(`Error: ${response.status}`);
-
-        const result = await response.json();
-        const container = document.getElementById("dat_container");
-        container.innerHTML = "";
-        if (result && result.body && result.body.length > 0 && result.body[0].trains.length > 0) {
-          const trains = result.body[0].trains;
-          let html = `<h3 style="margin-bottom: 15px; color:#0d47a1;">Trains matching "${trainNumber}"</h3>`;
-          html += `<table>
-            <thead>
-              <tr>
-                <th>Train Number</th>
-                <th>Train Name</th>
-                <th>Origin</th>
-                <th>Destination</th>
-                <th>Station From</th>
-              </tr>
-            </thead>
-            <tbody>`;
-          trains.forEach(train => {
-            html += `<tr onclick="window.location.href='index2.html?trainNumber=${train.trainNumber}'">
-              <td>${train.trainNumber || '-'}</td>
-              <td>${train.trainName || '-'}</td>
-              <td>${train.origin || '-'}</td>
-              <td>${train.destination || '-'}</td>
-              <td>${train.stationFrom || '-'}</td>
-            </tr>`;
-          });
-          html += '</tbody></table>';
-          container.innerHTML = html;
-        } else {
-          container.innerHTML = '<p style="color: #e53935;">No trains found for this train number.</p>';
-        }
-      } catch (error) {
-        console.error(error);
-        document.getElementById("dat_container").innerHTML = '<p style="color: #e53935;">Failed to fetch train data. Please try again.</p>';
+      if (!trainNum) {
+        resultDiv.innerHTML = `<p class="no-data">⚠️ Please enter a train number.</p>`;
+        return;
       }
-    });
+
+      // Simulating API call (you can replace with real fetch)
+      try {
+        const response = await fetch("trainData.json"); // or your API endpoint
+        const data = await response.json();
+
+        const train = data.body[0].trains.find(t => t.trainNumber === trainNum);
+
+        if (!train) {
+          resultDiv.innerHTML = `<p class="no-data">🚫 Train not found.</p>`;
+          return;
+        }
+
+        let html = `
+          <h3>${train.trainName} (${train.trainNumber})</h3>
+          <p><strong>From:</strong> ${train.origin} (${train.stationFrom})  
+             <strong>To:</strong> ${train.destination} (${train.stationTo})</p>
+          <table>
+            <tr>
+              <th>Station Code</th>
+              <th>Station Name</th>
+              <th>Arrival</th>
+              <th>Departure</th>
+              <th>Distance (km)</th>
+            </tr>
+        `;
+
+        train.schedule.forEach(stn => {
+          html += `
+            <tr>
+              <td>${stn.stationCode}</td>
+              <td>${stn.stationName}</td>
+              <td>${stn.arrivalTime}</td>
+              <td>${stn.departureTime}</td>
+              <td>${stn.distance}</td>
+            </tr>
+          `;
+        });
+
+        html += "</table>";
+        resultDiv.innerHTML = html;
+
+      } catch (err) {
+        resultDiv.innerHTML = `<p class="no-data">❌ Error loading data.</p>`;
+      }
+    }
   </script>
 </body>
 </html>
-
